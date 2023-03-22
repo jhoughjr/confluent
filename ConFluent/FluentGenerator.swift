@@ -39,6 +39,7 @@ class FluentGenerator:ObservableObject {
             """
         }
         
+        // todo 
         func migrationTypeFor(type:String) -> String {
             if type == "String" {
                return ".string"
@@ -140,5 +141,46 @@ class FluentGenerator:ObservableObject {
         }
         """
     }
-
+    
+    public func exportModel() {
+        guard !modelPath.isEmpty else { return }
+        guard let url = URL(string: modelPath)?.appending(path: "\(name)")
+            .appendingPathExtension("swift") else {
+            return
+        }
+        do {
+            try generatedModel.data(using: .utf8)?.write(to: url)
+        }
+        catch {
+            print(error)
+        }
+    }
+    
+    public func exportMigration() {
+        guard !migrationPath.isEmpty else { return }
+        guard let url = URL(string: migrationPath)?.appending(path: "Create\(name)Migration")
+            .appendingPathExtension("swift") else {
+            return
+        }
+        do {
+            try generatedMigration.data(using: .utf8)?.write(to: url)
+        }
+        catch {
+            print(error)
+        }
+    }
+    
+    public func exportController() {
+        guard !controllerPath.isEmpty else { return }
+        guard let url = URL(string: controllerPath)?.appending(path: "\(name)Controller")
+            .appendingPathExtension("swift") else {
+            return
+        }
+        do {
+            try generatedMigration.data(using: .utf8)?.write(to: url)
+        }
+        catch {
+            print(error)
+        }
+    }
 }
