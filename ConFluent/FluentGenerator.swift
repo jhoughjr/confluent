@@ -65,8 +65,7 @@ class FluentGenerator:ObservableObject {
     @Published var generatedMigration = ""
     @Published var generatedController = ""
     
-    // action
-    func generate() {
+    func generateModel() {
         generatedModel +=
     """
     import Fluent
@@ -107,7 +106,9 @@ class FluentGenerator:ObservableObject {
             generatedModel += "\t\tself.\(field.name) = \(field.name)\n"
         }
         generatedModel += "\t}\n}\n"
-        
+    }
+    
+    func generateMigration() {
         generatedMigration +=
         """
         import Fluent
@@ -140,6 +141,17 @@ class FluentGenerator:ObservableObject {
         \t}
         }
         """
+    }
+    
+    func generateController() {
+        
+    }
+    
+    // action
+    func generate() {
+        generateModel()
+        generateMigration()
+        generateController()
     }
     
     public func exportModel() {
