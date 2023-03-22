@@ -144,7 +144,28 @@ class FluentGenerator:ObservableObject {
     }
     
     func generateController() {
+        generatedController +=
+        """
+        import Vapor
+        import Fluent
+
+        struct \(name)Controller:RouteCollection {
         
+            func boot(routes: RoutesBuilder) throws {
+                routes.get("all") { req in
+                    return Response(status:.ok)
+                }
+                
+                routes.get(":id") { req in
+                    return Response(status:.ok)
+                }
+                
+                routes.post("") {req in
+                    return Response(status:.ok)
+                }
+            }
+        }
+        """
     }
     
     // action
