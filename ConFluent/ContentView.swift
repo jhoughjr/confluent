@@ -84,7 +84,7 @@ struct NewModelView: View {
     
     private var exportMigrationButton: some View {
         Button {
-            //write to migration path
+            generator.exportMigration()
         } label: {
             Text("Export")
         }
@@ -102,7 +102,7 @@ struct NewModelView: View {
     
     private var exportControllerButton: some View {
         Button {
-            //write to controller path
+            generator.exportController()
         } label: {
             Text("Export")
         }
