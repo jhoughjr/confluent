@@ -18,34 +18,105 @@ class FluentGenerator:ObservableObject {
     
     class Field:ObservableObject {
         
+        enum FieldType:String, CaseIterable {
+            case string
+            case bool
+            case datetime
+            case time
+            case date
+            case float
+            case double
+            case data
+            case uuid
+            case dictionary
+            case array
+            case enumeration
+            case custom
+            
+            func migration() -> String {
+                switch self {
+                    
+                case .string:
+                    return ".string"
+                case .bool:
+                    return ".bool"
+                case .datetime:
+                    return ".datetime"
+                case .time:
+                    return ".time"
+                case .date:
+                    return ".date"
+                case .float:
+                    return ".float"
+                case .double:
+                    return ".double"
+                case .data:
+                    return ".data"
+                case .uuid:
+                    return ".uuid"
+                case .dictionary:
+                    return ".dictionary"
+                case .array:
+                    return ".array"
+                case .enumeration:
+                    return ".enum"
+                case .custom:
+                    return "not implemented"
+                }
+            }
+            func swiftType() -> String {
+                switch self {
+                    
+                case .string:
+                    return "String"
+                case .bool:
+                    return "Bool"
+                case .datetime:
+                    return "Date"
+                case .time:
+                    return "Date"
+                case .date:
+                    return "Date"
+                case .float:
+                    return "Float"
+                case .double:
+                    return "Double"
+                case .data:
+                    return "Data"
+                case .uuid:
+                    return "UUID"
+                case .dictionary:
+                    return "Dictionary<T>"
+                case .array:
+                    return "[T]"
+                case .enumeration:
+                    return "not implemented"
+                case .custom:
+                    return ""
+                }
+            }
+        }
+        
         @Published var name = "" // swift name
         @Published var key = "" // db name. same as name unless speccified
         @Published var isOptional = false
-        @Published var type = "String"    // should get this from string enum
-        @Published var dbType = ".string" // need to enumerate this
+        @Published var type:FieldType = .string   // should get this from string enum
         @Published var id = UUID()
         
         func declaration() -> String {
            
             return """
             @\(isOptional ? "OptionalField" :"Field")(key:"\(key.isEmpty ? name : key)")
-            \tvar \(name):\(type)\(isOptional ? "?" : "")
+            \tvar \(name):\(type.swiftType())\(isOptional ? "?" : "")
             """
         }
         
         func migration() -> String {
             """
-            .field("\(key.isEmpty ? name : key)","\(dbType)",\(isOptional ? "" : ".required"))
+            .field("\(key.isEmpty ? name : key)","\(type.migration())",\(isOptional ? "" : ".required"))
             """
         }
         
-        // todo 
-        func migrationTypeFor(type:String) -> String {
-            if type == "String" {
-               return ".string"
-            }
-            return ""
-        }
     }
 
     // input
@@ -94,10 +165,10 @@ class FluentGenerator:ObservableObject {
         """
         for (i,field) in fields.enumerated() {
             if i != fields.count - 1 {
-                generatedModel += "\(field.name): \(field.type)\(field.isOptional ? "?" : ""), "
+                generatedModel += "\(field.name): \(field.type.swiftType())\(field.isOptional ? "?" : ""), "
             }
             else {
-                generatedModel += "\(field.name): \(field.type)\(field.isOptional ? "?" : "")"
+                generatedModel += "\(field.name): \(field.type.swiftType())\(field.isOptional ? "?" : "")"
             }
         }
         
@@ -167,9 +238,13 @@ class FluentGenerator:ObservableObject {
                         return Response(status:.notFound)
                     }
                     // think i can find by id isntead here
-                    let all = \(name).query(on:req.db).all()
-                                    .filter({$0.id == id}).first
-                    return Response(status:.ok)
+                    if let one = \(name).find(id, on:req.db) {
+                        
+                        return Response(status:.ok)
+                    }
+                    else {
+                        return Response(status:.notFound)
+                    }
                 }
                 
                 routes.post("") {req in

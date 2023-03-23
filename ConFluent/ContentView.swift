@@ -220,7 +220,6 @@ struct NewModelView: View {
                 generateButton
                     .padding([.trailing], 24)
             }
-            
         }
         .padding()
     }
@@ -229,6 +228,11 @@ struct NewModelView: View {
         HStack {
            designView
            exportView
+        }
+        .onAppear {
+            generator.modelPath = lastModelPath
+            generator.migrationPath = lastMigrationPath
+            generator.controllerPath = lastControllerPath
         }
     }
     
@@ -251,7 +255,6 @@ struct NewModelView: View {
                 lastControllerPath = generator.controllerPath
             case .project:
                 generator.projectPath = panel.url?.absoluteString ?? ""
-            
             }
         }
         else {
@@ -280,7 +283,17 @@ struct FieldView: View {
             HStack {
                 VStack(alignment: .leading) {
                     Text("Type").font(.title2)
-                    TextField("type",text: $field.type)
+                    Picker(selection: $field.type) {
+                        ForEach(FluentGenerator.Field.FieldType.allCases,
+                                id:\.self) { i in
+                            Text(i.rawValue)
+                        }
+                    } label: {
+                        Text("Type")
+                    }
+
+                       
+
                 }
                 
                 Toggle("Optional", isOn: $field.isOptional)
