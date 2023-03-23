@@ -151,12 +151,24 @@ class FluentGenerator:ObservableObject {
 
         struct \(name)Controller:RouteCollection {
         
+            let encoder = JSONEncoder()
+            let decoder = JSONDecoder()
+        
             func boot(routes: RoutesBuilder) throws {
                 routes.get("all") { req in
-                    return Response(status:.ok)
+                    let all = \(name).query(on:req.db).all()
+                    let allCoded = try encoder.encode([\(name)],
+                                                      with:all)
+                    return Response(status:.ok, body:allCoded)
                 }
                 
                 routes.get(":id") { req in
+                    guard let id = req.parameters.get("id") else {
+                        return Response(status:.notFound)
+                    }
+                    // think i can find by id isntead here
+                    let all = \(name).query(on:req.db).all()
+                                    .filter({$0.id == id}).first
                     return Response(status:.ok)
                 }
                 

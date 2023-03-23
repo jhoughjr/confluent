@@ -17,6 +17,15 @@ struct ContentView: View {
 
 struct NewModelView: View {
   
+    @AppStorage("lastModelPath")
+    var lastModelPath = ""
+    
+    @AppStorage("lastMigrationPath")
+    var lastMigrationPath = ""
+    
+    @AppStorage("lastcontrollerPath")
+    var lastControllerPath = ""
+    
     // model
     @ObservedObject var generator = FluentGenerator()
     
@@ -116,8 +125,15 @@ struct NewModelView: View {
             Divider()
             HStack {
                 browseModelPathButton
-                Text("\(generator.modelPath)")
-                    .font(.title2)
+                HStack {
+                    Text("\(generator.modelPath)")
+                        .font(.title2)
+                        .truncationMode(.middle)
+                        .lineLimit(1)
+                    Text("\(generator.name).swft")
+                        .font(.title2)
+                        .foregroundColor(.gray)
+                }
                 exportModelButton
             }
             CodeEditor(source: $generator.generatedModel,
@@ -133,8 +149,14 @@ struct NewModelView: View {
             Divider()
             HStack {
                 browseMigrationPathButton
-                Text("\(generator.migrationPath)")
-                    .font(.title2)
+                HStack {
+                    Text("\(generator.migrationPath)")
+                        .font(.title2)
+                        .truncationMode(.middle)
+                        .lineLimit(1)
+                    Text("Create\(generator.name)Migration.swit")
+                        .foregroundColor(.gray)
+                }
                 exportMigrationButton
             }
             CodeEditor(source: $generator.generatedMigration,
@@ -149,8 +171,14 @@ struct NewModelView: View {
             Divider()
             HStack {
                 browseControllerPathButton
-                Text("\(generator.controllerPath)")
-                    .font(.title2)
+                HStack {
+                    Text("\(generator.controllerPath)")
+                        .font(.title2)
+                        .truncationMode(.middle)
+                        .lineLimit(1)
+                    Text("\(generator.name)Controller.swift")
+                        .foregroundColor(.gray)
+                }
                 exportControllerButton
             }
             CodeEditor(source: $generator.generatedController,
@@ -214,12 +242,16 @@ struct NewModelView: View {
                 
             case .model:
                 generator.modelPath = panel.url?.absoluteString ?? ""
+                lastModelPath = generator.modelPath
             case .migration:
                 generator.migrationPath = panel.url?.absoluteString ?? ""
+                lastMigrationPath = generator.migrationPath
             case .controller:
                 generator.controllerPath = panel.url?.absoluteString ?? ""
+                lastControllerPath = generator.controllerPath
             case .project:
                 generator.projectPath = panel.url?.absoluteString ?? ""
+            
             }
         }
         else {
