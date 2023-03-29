@@ -18,7 +18,8 @@ class FluentGenerator:ObservableObject {
     
     class Field:ObservableObject {
         
-        enum FieldType:String, CaseIterable {
+        enum FieldType: String, CaseIterable {
+            
             case string
             case bool
             case datetime
@@ -33,7 +34,7 @@ class FluentGenerator:ObservableObject {
             case enumeration
             case custom
             
-            func migration() -> String {
+            func migration(for t:FieldType?) -> String {
                 switch self {
                     
                 case .string:
@@ -55,15 +56,16 @@ class FluentGenerator:ObservableObject {
                 case .uuid:
                     return ".uuid"
                 case .dictionary:
-                    return ".dictionary"
+                    return ".dictionary(of:\(t!.migration(for:nil))"
                 case .array:
-                    return ".array"
+                    return ".array(of:\(t!.migration(for:nil))"
                 case .enumeration:
-                    return ".enum"
+                    return "/* not implemented */"
                 case .custom:
-                    return "not implemented"
+                    return "/* not implemented */"
                 }
             }
+            
             func swiftType() -> String {
                 switch self {
                     
@@ -101,6 +103,7 @@ class FluentGenerator:ObservableObject {
         @Published var key = "" // db name. same as name unless speccified
         @Published var isOptional = false
         @Published var type:FieldType = .string   // should get this from string enum
+
         @Published var id = UUID()
         
         func declaration() -> String {
@@ -113,7 +116,7 @@ class FluentGenerator:ObservableObject {
         
         func migration() -> String {
             """
-            .field("\(key.isEmpty ? name : key)","\(type.migration())",\(isOptional ? "" : ".required"))
+            .field("\(key.isEmpty ? name : key)","\(type.migration(for: nil))",\(isOptional ? "" : ".required"))
             """
         }
         
